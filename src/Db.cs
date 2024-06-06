@@ -1,6 +1,9 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using BloomFilter;
 using BloomFilter.Configurations;
+using Microsoft.Extensions.Logging;
 
 namespace KVDb;
 
@@ -10,6 +13,7 @@ public sealed partial class Db
     private readonly SortedDictionary<string, List<KeyDirEntry>> _sparseMemoryIndex;
     private readonly List<Segment> _immutableSegments;
     private readonly IBloomFilter _bloomFilter;
+    private readonly ILogger<Db> _logger;
     private readonly int _maxInMemorySize;
     private readonly int _sparseOffset;
     private readonly int _segmentSize;
@@ -17,9 +21,11 @@ public sealed partial class Db
     private readonly bool _persistSegments;
     private readonly string _basePath;
     private const string SegmentDir = "sst_data";
-    private const string Tombstone = "TOMBSTONE";
+    private static readonly string Tombstone = GenerateTombstone();
+    private const string TombStone = "Tombstone";
 
     public Db(
+        ILogger<Db> logger,
         int maxInMemorySize = 1000,
         int sparseOffset = 300,
         int segmentSize = 50,
@@ -27,6 +33,7 @@ public sealed partial class Db
         string? basePath = null,
         int mergeThreshold = 3)
     {
+        _logger = logger;
         _maxInMemorySize = maxInMemorySize;
         _sparseOffset = sparseOffset;
         _segmentSize = segmentSize;
@@ -43,30 +50,33 @@ public sealed partial class Db
             Directory.CreateDirectory(_basePath);
         }
 
+        _logger.InitializingDatabase(_basePath);
         ScanPathForSegments();
     }
 
     private void ScanPathForSegments()
     {
+        _logger.ScanningPathForSegments();
         var segmentFiles = Directory.GetFiles(_basePath)
             .Where(file => MyRegex().IsMatch(Path.GetFileName(file)))
             .OrderBy(file => file)
             .ToList();
+
+        _logger.FoundSegmentFiles(segmentFiles.Count);
 
         foreach (var file in segmentFiles)
         {
             var segment = new Segment(file);
             _immutableSegments.Add(segment);
         }
-
         UpdateSparseMemoryIndex();
         UpdateBloomFilter();
     }
 
     private void UpdateSparseMemoryIndex()
     {
+        _logger.UpdatingSparseMemoryIndex();
         int count = 0;
-
         foreach (var segment in _immutableSegments)
         {
             using (segment)
@@ -75,22 +85,25 @@ public sealed partial class Db
                 {
                     var offset = segment.GetPosition();
                     var entry = segment.ReadEntry();
-                    if (count % _sparseOffset == 0 && entry != null)
+                    if (count % _sparseOffset == 0 && entry is not null)
                     {
-                        if (!_sparseMemoryIndex.ContainsKey(entry.Key))
+                        if (!_sparseMemoryIndex.TryGetValue(entry.Key, out var value))
                         {
-                            _sparseMemoryIndex[entry.Key] = new List<KeyDirEntry>();
+                            value = new List<KeyDirEntry>();
+                            _sparseMemoryIndex[entry.Key] = value;
                         }
-                        _sparseMemoryIndex[entry.Key].Add(new KeyDirEntry(offset, segment));
+                        value.Add(new KeyDirEntry(offset, segment));
                     }
                     count++;
                 }
             }
         }
+        _logger.SparseMemoryIndexUpdated(count);
     }
 
     private void UpdateBloomFilter()
     {
+        _logger.LogInformation("Updating Bloom filter...");
         foreach (var segment in _immutableSegments)
         {
             using (segment)
@@ -98,13 +111,14 @@ public sealed partial class Db
                 while (!segment.ReachedEof())
                 {
                     var entry = segment.ReadEntry();
-                    if (entry != null)
+                    if (entry is not null)
                     {
                         _bloomFilter.Add(entry.Key);
                     }
                 }
             }
         }
+        _logger.BloomFilterUpdated();
     }
 
     public async Task Insert(string key, string value)
@@ -114,13 +128,17 @@ public sealed partial class Db
             throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
         }
 
+        _logger.InsertingKey(key);
+
         if (_memTable.CapacityReached())
         {
+            _logger.MemTableCapacityReached();
             var segment = await WriteToSegmentAsync();
             _immutableSegments.Add(segment);
 
             if (_immutableSegments.Count >= _mergeThreshold)
             {
+                _logger.MergeThresholdReached();
                 var mergedSegments = await MergeSegmentsAsync();
                 ClearSegmentList();
                 _immutableSegments.AddRange(mergedSegments);
@@ -131,18 +149,23 @@ public sealed partial class Db
         }
         _memTable[key] = value;
         await _bloomFilter.AddAsync(key);
+        _logger.KeyInserted(key);
     }
 
     public async Task<string?> GetAsync(string key)
     {
+        _logger.RetrievingValue(key);
+
         if (!await _bloomFilter.ContainsAsync(key))
         {
+            _logger.KeyNotFoundInBloomFilter(key);
             return null;
         }
 
         if (_memTable.ContainsKey(key))
         {
             var value = _memTable[key];
+            _logger.KeyFoundInMemTable(key);
             return value == Tombstone ? null : value;
         }
 
@@ -153,7 +176,11 @@ public sealed partial class Db
                 foreach (var keyDirEntry in _sparseMemoryIndex[closestKey].OrderByDescending(kde => kde.Offset))
                 {
                     var entry = await SearchEntryInSegmentAsync(keyDirEntry.Segment, key, keyDirEntry.Offset);
-                    return entry?.Value;
+                    if (entry is not null)
+                    {
+                        _logger.KeyFoundInSegment(key);
+                        return entry.Value;
+                    }
                 }
             }
         }
@@ -161,13 +188,20 @@ public sealed partial class Db
         foreach (var segment in _immutableSegments.OrderByDescending(s => s.Timestamp))
         {
             var entry = await SearchEntryInSegmentAsync(segment, key, 0);
-            if (entry != null)
+            if (entry is not null)
             {
+                _logger.KeyFoundInSegment(key);
                 return entry.Value;
             }
         }
-
+        _logger.KeyNotFoundInSegment(key);
         return null;
+    }
+    
+    public async Task DeleteAsync(string key)
+    {
+        _logger.DeletingKey(key);
+        await Insert(key, Tombstone);
     }
 
     private async Task<Segment> WriteToSegmentAsync()
@@ -193,11 +227,13 @@ public sealed partial class Db
                 count++;
             }
         }
+        _logger.MemTableWrittenToSegment(segment.Path);
         return segment;
     }
 
     private async Task<List<Segment>> MergeSegmentsAsync()
     {
+        _logger.MergingSegments();
         var mergedSegments = new List<Segment>();
         var entries = ChainSegmentsAsync(_immutableSegments.ToArray());
 
@@ -227,16 +263,18 @@ public sealed partial class Db
         }
         finally
         {
-            if (newSegment != null && !mergedSegments.Contains(newSegment))
+            if (newSegment is not null && !mergedSegments.Contains(newSegment))
             {
                 newSegment.Dispose();
             }
         }
+        _logger.SegmentsMerged();
         return mergedSegments;
     }
 
-    private static async IAsyncEnumerable<SegmentEntry> ChainSegmentsAsync(params Segment[] segments)
+    private async IAsyncEnumerable<SegmentEntry> ChainSegmentsAsync(params Segment[] segments)
     {
+        _logger.LogInformation("Chaining segments...");
         var heap = new SortedSet<(string Key, double Timestamp, SegmentEntry Entry, Segment Segment)>(
             Comparer<(string, double, SegmentEntry, Segment)>.Create((x, y) =>
             {
@@ -250,7 +288,7 @@ public sealed partial class Db
             using (segment)
             {
                 var entry = await segment.ReadEntryAsync();
-                if (entry != null)
+                if (entry is not null)
                 {
                     heap.Add((entry.Key, segment.Timestamp, entry, segment));
                 }
@@ -262,10 +300,10 @@ public sealed partial class Db
             var (_, _, entry, segment) = heap.Min;
             heap.Remove(heap.Min);
 
-            if (previousEntry != null && entry.Key == previousEntry.Key)
+            if (previousEntry is not null && entry.Key == previousEntry.Key)
             {
                 var nextEntry = await segment.ReadEntryAsync();
-                if (nextEntry != null)
+                if (nextEntry is not null)
                     heap.Add((nextEntry.Key, segment.Timestamp, nextEntry, segment));
                 continue;
             }
@@ -273,28 +311,31 @@ public sealed partial class Db
             previousEntry = entry;
 
             var newEntry = await segment.ReadEntryAsync();
-            if (newEntry != null)
+            if (newEntry is not null)
             {
                 heap.Add((newEntry.Key, segment.Timestamp, newEntry, segment));
             }
         }
+        _logger.ChainedSegments();
     }
 
-    private static async Task<SegmentEntry?> SearchEntryInSegmentAsync(Segment segment, string key, long offset)
+    private async Task<SegmentEntry?> SearchEntryInSegmentAsync(Segment segment, string key, long offset)
     {
+        _logger.SearchForEntryInSegment(key, segment.Path, offset);
         using (segment)
         {
             segment.Seek(offset);
             while (!segment.ReachedEof())
             {
                 var entry = await segment.ReadEntryAsync();
-                if (entry == null)
+                if (entry is null)
                 {
                     break;
                 }
 
                 if (entry.Key == key)
                 {
+                    _logger.KeyFoundInSegment(key);
                     return entry;
                 }
 
@@ -304,16 +345,44 @@ public sealed partial class Db
                 }
             }
         }
+        _logger.KeyNotFoundInSegment(key);
         return null;
     }
 
     private void ClearSegmentList()
     {
+        _logger.ClearingSegmentList();
         foreach (var segment in _immutableSegments)
         {
             File.Delete(segment.Path);
         }
         _immutableSegments.Clear();
+        _logger.SegmentListCleared();
+    }
+    
+    private static readonly byte[] NamespaceOidBytes =
+    [
+        0x6b, 0xa7, 0xb8, 0x12, 0x9d, 0xad, 0x11, 0xd1,
+        0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8
+    ];
+
+    private static readonly UTF8Encoding Utf8 = new (false);
+
+    private static string GenerateTombstone()
+    {
+        var nameBytes = Utf8.GetBytes(TombStone);
+        var combinedBytes = new byte[NamespaceOidBytes.Length + nameBytes.Length];
+
+        Buffer.BlockCopy(NamespaceOidBytes, 0, combinedBytes, 0, NamespaceOidBytes.Length);
+        Buffer.BlockCopy(nameBytes, 0, combinedBytes, NamespaceOidBytes.Length, nameBytes.Length);
+
+        var hashBytes = SHA1.HashData(combinedBytes);
+
+        // Set version (5) and variant bits
+        hashBytes[6] = (byte)((hashBytes[6] & 0x0F) | 0x50);
+        hashBytes[8] = (byte)((hashBytes[8] & 0x3F) | 0x80);
+
+        return new Guid(hashBytes).ToString();
     }
 
     [GeneratedRegex(@"^\d+\.\d+\.txt$")]

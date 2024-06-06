@@ -1,6 +1,6 @@
 namespace KVDb;
 
-public class MemTable
+public sealed class MemTable
 {
     private readonly SortedDictionary<string, string> _entries;
     private readonly int _maxSize;

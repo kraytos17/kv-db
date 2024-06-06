@@ -8,13 +8,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11c22dde-5f17-425e-bb55-6a2e66feb1e6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Log.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.KVDb/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.KVDb/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KVDb.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/KVDb.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KVDb.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/KVDb.sln.DotSettings.user" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Db.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Db.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Memtable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Memtable.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Program.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,6 +76,8 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e7ab85306c9342c391f26bd2d9fc5bd9b2c800/14/155e1c64/ThreadPoolWorkQueue.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e7ab85306c9342c391f26bd2d9fc5bd9b2c800/19/7f5986f1/ValueTask`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e7ab85306c9342c391f26bd2d9fc5bd9b2c800/23/8c98a5cf/ValueTaskAwaiter`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e7ab85306c9342c391f26bd2d9fc5bd9b2c800/2f/86db401e/Guid.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e7ab85306c9342c391f26bd2d9fc5bd9b2c800/31/edcbcf40/KeyValuePair`2.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e7ab85306c9342c391f26bd2d9fc5bd9b2c800/32/f79534ad/IStateMachineBoxAwareAwaiter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e7ab85306c9342c391f26bd2d9fc5bd9b2c800/43/2c34dbe0/List`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e7ab85306c9342c391f26bd2d9fc5bd9b2c800/4d/3f97b500/ReadOnlySpan`1.cs" root0="SKIP_HIGHLIGHTING" />
@@ -166,7 +164,7 @@
       <workItem from="1717521726184" duration="363000" />
       <workItem from="1717535456125" duration="12492000" />
       <workItem from="1717594363569" duration="18798000" />
-      <workItem from="1717653073894" duration="628000" />
+      <workItem from="1717653073894" duration="4107000" />
     </task>
     <servers />
   </component>
@@ -176,24 +174,5 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/src/Db.cs</url>
-          <line>164</line>
-          <properties documentPath="$PROJECT_DIR$/src/Db.cs" containingFunctionPresentation="Method 'GetAsync'">
-            <startOffsets>
-              <option value="5224" />
-            </startOffsets>
-            <endOffsets>
-              <option value="5255" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

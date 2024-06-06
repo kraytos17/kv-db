@@ -20,11 +20,6 @@ public static class Program
         await db.Insert("key2", "value2");
         await db.Insert("key3", "value3");
 
-        // foreach (var entry in db._memTable)
-        // {
-        //     Console.WriteLine($"key = {entry.Key}, value = {entry.Value}");
-        // }
-
         // Get operation
         var value1 = await db.GetAsync("key1");
         Console.WriteLine($"Value for key1: {value1}");

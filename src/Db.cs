@@ -1,8 +1,7 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 using BloomFilter;
 using BloomFilter.Configurations;
+using Elephant.Uuidv5Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace KVDb;
@@ -52,6 +51,13 @@ public sealed partial class Db
 
         _logger.InitializingDatabase(_basePath);
         ScanPathForSegments();
+    }
+    
+    private static string GenerateTombstone()
+    {
+        // Define the namespace UUID (equivalent to uuid.NAMESPACE_OID in Python)
+        var namespaceOid = new Guid("6ba7b812-9dad-11d1-80b4-00c04fd430c8");
+        return Uuidv5Utils.GenerateGuid(namespaceOid, TombStone).ToString();
     }
 
     private void ScanPathForSegments()
@@ -358,31 +364,6 @@ public sealed partial class Db
         }
         _immutableSegments.Clear();
         _logger.SegmentListCleared();
-    }
-    
-    private static readonly byte[] NamespaceOidBytes =
-    [
-        0x6b, 0xa7, 0xb8, 0x12, 0x9d, 0xad, 0x11, 0xd1,
-        0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8
-    ];
-
-    private static readonly UTF8Encoding Utf8 = new (false);
-
-    private static string GenerateTombstone()
-    {
-        var nameBytes = Utf8.GetBytes(TombStone);
-        var combinedBytes = new byte[NamespaceOidBytes.Length + nameBytes.Length];
-
-        Buffer.BlockCopy(NamespaceOidBytes, 0, combinedBytes, 0, NamespaceOidBytes.Length);
-        Buffer.BlockCopy(nameBytes, 0, combinedBytes, NamespaceOidBytes.Length, nameBytes.Length);
-
-        var hashBytes = SHA1.HashData(combinedBytes);
-
-        // Set version (5) and variant bits
-        hashBytes[6] = (byte)((hashBytes[6] & 0x0F) | 0x50);
-        hashBytes[8] = (byte)((hashBytes[8] & 0x3F) | 0x80);
-
-        return new Guid(hashBytes).ToString();
     }
 
     [GeneratedRegex(@"^\d+\.\d+\.txt$")]

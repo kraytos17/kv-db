@@ -1,19 +1,12 @@
 namespace KVDb;
 
-public sealed class MemTable
+public sealed class MemTable(int maxSize)
 {
-    private readonly SortedDictionary<string, string> _entries;
-    private readonly int _maxSize;
-
-    public MemTable(int maxSize)
-    {
-        _entries = new SortedDictionary<string, string>();
-        _maxSize = maxSize;
-    }
+    private readonly SortedDictionary<string, string> _entries = new();
 
     public void Clear() => _entries.Clear();
 
-    public bool CapacityReached() => _entries.Count >= _maxSize;
+    public bool CapacityReached() => _entries.Count >= maxSize;
 
     public bool ContainsKey(string key) => _entries.ContainsKey(key);
 
@@ -25,9 +18,6 @@ public sealed class MemTable
 
     public IEnumerator<SegmentEntry> GetEnumerator()
     {
-        foreach (var kvp in _entries)
-        {
-            yield return new SegmentEntry(kvp.Key, kvp.Value);
-        }
+        return _entries.Select(kvp => new SegmentEntry(kvp.Key, kvp.Value)).GetEnumerator();
     }
 }

@@ -6,8 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace KVDb;
 
-public sealed partial class Db
-{
+public sealed partial class Db {
     private readonly MemTable _memTable;
     private readonly SortedDictionary<string, List<KeyDirEntry>> _sparseMemoryIndex;
     private readonly List<Segment> _immutableSegments;
@@ -41,11 +40,10 @@ public sealed partial class Db
         _basePath = basePath ?? SegmentDir;
         _memTable = new MemTable(maxInMemorySize);
         _sparseMemoryIndex = new SortedDictionary<string, List<KeyDirEntry>>();
-        _immutableSegments = new List<Segment>();
+        _immutableSegments = [];
         _bloomFilter = FilterBuilder.Build(new FilterMemoryOptions());
 
-        if (!Directory.Exists(_basePath))
-        {
+        if (!Directory.Exists(_basePath)) {
             Directory.CreateDirectory(_basePath);
         }
 
@@ -53,15 +51,13 @@ public sealed partial class Db
         ScanPathForSegments();
     }
     
-    private static string GenerateTombstone()
-    {
+    private static string GenerateTombstone() {
         // Define the namespace UUID (equivalent to uuid.NAMESPACE_OID in Python)
         var namespaceOid = new Guid("6ba7b812-9dad-11d1-80b4-00c04fd430c8");
         return Uuidv5Utils.GenerateGuid(namespaceOid, TombStone).ToString();
     }
 
-    private void ScanPathForSegments()
-    {
+    private void ScanPathForSegments() {
         _logger.ScanningPathForSegments();
         var segmentFiles = Directory.GetFiles(_basePath)
             .Where(file => MyRegex().IsMatch(Path.GetFileName(file)))
@@ -70,32 +66,24 @@ public sealed partial class Db
 
         _logger.FoundSegmentFiles(segmentFiles.Count);
 
-        foreach (var file in segmentFiles)
-        {
-            var segment = new Segment(file);
+        foreach (var segment in segmentFiles.Select(file => new Segment(file))) {
             _immutableSegments.Add(segment);
         }
         UpdateSparseMemoryIndex();
         UpdateBloomFilter();
     }
 
-    private void UpdateSparseMemoryIndex()
-    {
+    private void UpdateSparseMemoryIndex() {
         _logger.UpdatingSparseMemoryIndex();
-        int count = 0;
-        foreach (var segment in _immutableSegments)
-        {
-            using (segment)
-            {
-                while (!segment.ReachedEof())
-                {
+        var count = 0;
+        foreach (var segment in _immutableSegments) {
+            using (segment) {
+                while (!segment.ReachedEof()) {
                     var offset = segment.GetPosition();
                     var entry = segment.ReadEntry();
-                    if (count % _sparseOffset == 0 && entry is not null)
-                    {
-                        if (!_sparseMemoryIndex.TryGetValue(entry.Key, out var value))
-                        {
-                            value = new List<KeyDirEntry>();
+                    if (count % _sparseOffset == 0 && entry is not null) {
+                        if (!_sparseMemoryIndex.TryGetValue(entry.Key, out var value)) {
+                            value = [];
                             _sparseMemoryIndex[entry.Key] = value;
                         }
                         value.Add(new KeyDirEntry(offset, segment));
@@ -107,18 +95,13 @@ public sealed partial class Db
         _logger.SparseMemoryIndexUpdated(count);
     }
 
-    private void UpdateBloomFilter()
-    {
+    private void UpdateBloomFilter() {
         _logger.LogInformation("Updating Bloom filter...");
-        foreach (var segment in _immutableSegments)
-        {
-            using (segment)
-            {
-                while (!segment.ReachedEof())
-                {
+        foreach (var segment in _immutableSegments) {
+            using (segment) {
+                while (!segment.ReachedEof()) {
                     var entry = segment.ReadEntry();
-                    if (entry is not null)
-                    {
+                    if (entry is not null) {
                         _bloomFilter.Add(entry.Key);
                     }
                 }
@@ -127,23 +110,19 @@ public sealed partial class Db
         _logger.BloomFilterUpdated();
     }
 
-    public async Task Insert(string key, string value)
-    {
-        if (string.IsNullOrWhiteSpace(key))
-        {
+    public async Task Insert(string key, string value) {
+        if (string.IsNullOrWhiteSpace(key)) {
             throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
         }
 
         _logger.InsertingKey(key);
 
-        if (_memTable.CapacityReached())
-        {
+        if (_memTable.CapacityReached()) {
             _logger.MemTableCapacityReached();
             var segment = await WriteToSegmentAsync();
             _immutableSegments.Add(segment);
 
-            if (_immutableSegments.Count >= _mergeThreshold)
-            {
+            if (_immutableSegments.Count >= _mergeThreshold) {
                 _logger.MergeThresholdReached();
                 var mergedSegments = await MergeSegmentsAsync();
                 ClearSegmentList();
@@ -158,32 +137,25 @@ public sealed partial class Db
         _logger.KeyInserted(key);
     }
 
-    public async Task<string?> GetAsync(string key)
-    {
+    public async Task<string?> GetAsync(string key) {
         _logger.RetrievingValue(key);
 
-        if (!await _bloomFilter.ContainsAsync(key))
-        {
+        if (!await _bloomFilter.ContainsAsync(key)) {
             _logger.KeyNotFoundInBloomFilter(key);
             return null;
         }
 
-        if (_memTable.ContainsKey(key))
-        {
+        if (_memTable.ContainsKey(key)) {
             var value = _memTable[key];
             _logger.KeyFoundInMemTable(key);
             return value == Tombstone ? null : value;
         }
 
-        foreach (var closestKey in _sparseMemoryIndex.Keys.Reverse())
-        {
-            if (string.Compare(closestKey, key, StringComparison.Ordinal) <= 0)
-            {
-                foreach (var keyDirEntry in _sparseMemoryIndex[closestKey].OrderByDescending(kde => kde.Offset))
-                {
+        foreach (var closestKey in _sparseMemoryIndex.Keys.Reverse()) {
+            if (string.Compare(closestKey, key, StringComparison.Ordinal) <= 0) {
+                foreach (var keyDirEntry in _sparseMemoryIndex[closestKey].OrderByDescending(kde => kde.Offset)) {
                     var entry = await SearchEntryInSegmentAsync(keyDirEntry.Segment, key, keyDirEntry.Offset);
-                    if (entry is not null)
-                    {
+                    if (entry is not null) {
                         _logger.KeyFoundInSegment(key);
                         return entry.Value;
                     }
@@ -191,11 +163,9 @@ public sealed partial class Db
             }
         }
 
-        foreach (var segment in _immutableSegments.OrderByDescending(s => s.Timestamp))
-        {
+        foreach (var segment in _immutableSegments.OrderByDescending(s => s.Timestamp)) {
             var entry = await SearchEntryInSegmentAsync(segment, key, 0);
-            if (entry is not null)
-            {
+            if (entry is not null) {
                 _logger.KeyFoundInSegment(key);
                 return entry.Value;
             }
@@ -204,28 +174,22 @@ public sealed partial class Db
         return null;
     }
     
-    public async Task DeleteAsync(string key)
-    {
+    public async Task DeleteAsync(string key) {
         _logger.DeletingKey(key);
         await Insert(key, Tombstone);
     }
 
-    private async Task<Segment> WriteToSegmentAsync()
-    {
+    private async Task<Segment> WriteToSegmentAsync() {
         var segment = new Segment(Path.Combine(_basePath, $"{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.txt"));
-        using (segment)
-        {
-            int count = 0;
-            foreach (var entry in _memTable)
-            {
+        using (segment) {
+            var count = 0;
+            foreach (var entry in _memTable) {
                 var offset = segment.GetPosition();
                 await segment.AddEntryAsync(entry);
 
-                if (count % _sparseOffset == 0)
-                {
-                    if (!_sparseMemoryIndex.TryGetValue(entry.Key, out var value))
-                    {
-                        value = new List<KeyDirEntry>();
+                if (count % _sparseOffset == 0) {
+                    if (!_sparseMemoryIndex.TryGetValue(entry.Key, out var value)) {
+                        value = [];
                         _sparseMemoryIndex[entry.Key] = value;
                     }
                     value.Add(new KeyDirEntry(offset, segment));
@@ -237,23 +201,19 @@ public sealed partial class Db
         return segment;
     }
 
-    private async Task<List<Segment>> MergeSegmentsAsync()
-    {
+    private async Task<List<Segment>> MergeSegmentsAsync() {
         _logger.MergingSegments();
         var mergedSegments = new List<Segment>();
         var entries = ChainSegmentsAsync(_immutableSegments.ToArray());
 
         Segment? newSegment = null;
-        try
-        {
+        try {
             newSegment = new Segment(Path.Combine(_basePath, $"{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.txt"));
-            int count = 0;
-            await foreach (var entry in entries)
-            {
+            var count = 0;
+            await foreach (var entry in entries) {
                 await newSegment.AddEntryAsync(entry);
                 count++;
-                if (count >= _segmentSize)
-                {
+                if (count >= _segmentSize) {
                     newSegment.Dispose();
                     mergedSegments.Add(newSegment);
                     newSegment = new Segment(Path.Combine(_basePath, $"{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.txt"));
@@ -261,16 +221,13 @@ public sealed partial class Db
                 }
             }
 
-            if (count > 0)
-            {
+            if (count > 0) {
                 newSegment.Dispose();
                 mergedSegments.Add(newSegment);
             }
         }
-        finally
-        {
-            if (newSegment is not null && !mergedSegments.Contains(newSegment))
-            {
+        finally {
+            if (newSegment is not null && !mergedSegments.Contains(newSegment)) {
                 newSegment.Dispose();
             }
         }
@@ -278,36 +235,29 @@ public sealed partial class Db
         return mergedSegments;
     }
 
-    private async IAsyncEnumerable<SegmentEntry> ChainSegmentsAsync(params Segment[] segments)
-    {
+    private async IAsyncEnumerable<SegmentEntry> ChainSegmentsAsync(params Segment[] segments) {
         _logger.LogInformation("Chaining segments...");
         var heap = new SortedSet<(string Key, double Timestamp, SegmentEntry Entry, Segment Segment)>(
-            Comparer<(string, double, SegmentEntry, Segment)>.Create((x, y) =>
-            {
+            Comparer<(string, double, SegmentEntry, Segment)>.Create((x, y) => {
                 var keyComparison = string.Compare(x.Item1, y.Item1, StringComparison.Ordinal);
                 return keyComparison != 0 ? keyComparison : x.Item4.Timestamp.CompareTo(y.Item4.Timestamp);
             }));
 
         var previousEntry = default(SegmentEntry);
-        foreach (var segment in segments)
-        {
-            using (segment)
-            {
+        foreach (var segment in segments) {
+            using (segment) {
                 var entry = await segment.ReadEntryAsync();
-                if (entry is not null)
-                {
+                if (entry is not null) {
                     heap.Add((entry.Key, segment.Timestamp, entry, segment));
                 }
             }
         }
 
-        while (heap.Count > 0)
-        {
+        while (heap.Count > 0) {
             var (_, _, entry, segment) = heap.Min;
             heap.Remove(heap.Min);
 
-            if (previousEntry is not null && entry.Key == previousEntry.Key)
-            {
+            if (previousEntry is not null && entry.Key == previousEntry.Key) {
                 var nextEntry = await segment.ReadEntryAsync();
                 if (nextEntry is not null)
                     heap.Add((nextEntry.Key, segment.Timestamp, nextEntry, segment));
@@ -317,36 +267,29 @@ public sealed partial class Db
             previousEntry = entry;
 
             var newEntry = await segment.ReadEntryAsync();
-            if (newEntry is not null)
-            {
+            if (newEntry is not null) {
                 heap.Add((newEntry.Key, segment.Timestamp, newEntry, segment));
             }
         }
         _logger.ChainedSegments();
     }
 
-    private async Task<SegmentEntry?> SearchEntryInSegmentAsync(Segment segment, string key, long offset)
-    {
+    private async Task<SegmentEntry?> SearchEntryInSegmentAsync(Segment segment, string key, long offset) {
         _logger.SearchForEntryInSegment(key, segment.Path, offset);
-        using (segment)
-        {
+        using (segment) {
             segment.Seek(offset);
-            while (!segment.ReachedEof())
-            {
+            while (!segment.ReachedEof()) {
                 var entry = await segment.ReadEntryAsync();
-                if (entry is null)
-                {
+                if (entry is null) {
                     break;
                 }
 
-                if (entry.Key == key)
-                {
+                if (entry.Key == key) {
                     _logger.KeyFoundInSegment(key);
                     return entry;
                 }
 
-                if (string.Compare(entry.Key, key, StringComparison.Ordinal) > 0)
-                {
+                if (string.Compare(entry.Key, key, StringComparison.Ordinal) > 0) {
                     break;
                 }
             }
@@ -355,11 +298,9 @@ public sealed partial class Db
         return null;
     }
 
-    private void ClearSegmentList()
-    {
+    private void ClearSegmentList() {
         _logger.ClearingSegmentList();
-        foreach (var segment in _immutableSegments)
-        {
+        foreach (var segment in _immutableSegments) {
             File.Delete(segment.Path);
         }
         _immutableSegments.Clear();

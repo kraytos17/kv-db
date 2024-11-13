@@ -114,7 +114,6 @@ public sealed partial class Db {
         if (string.IsNullOrWhiteSpace(key)) {
             throw new ArgumentException("Key cannot be null or whitespace.", nameof(key));
         }
-
         _logger.InsertingKey(key);
 
         if (_memTable.CapacityReached()) {

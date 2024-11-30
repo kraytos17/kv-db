@@ -7,7 +7,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11c22dde-5f17-425e-bb55-6a2e66feb1e6" name="Changes" comment="" />
+    <list default="true" id="11c22dde-5f17-425e-bb55-6a2e66feb1e6" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/BloomFilter.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/LogEntry.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/MurmurHash3.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/SSTFooter.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/SSTMetadata.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/SSTable.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/SstIdxEntry.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.KVDb/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.KVDb/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KVDb.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/KVDb.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KVDb.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/KVDb.sln.DotSettings.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Db.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Db.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/KeyDirEntry.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Memtable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Memtable.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Segment.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SegmentEntry.cs" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,10 +50,30 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d15f765e54c24f0cb4e0f58073ba24dc13c00/79/edbfb2d4/IBloomFilter.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/df6ecc3a2f73aa6c2e4c935eb66e23191bcbbefd34be6244af449299ed894ac3/ValueTask.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1658c9b866fc49cc9cc47fffce99f063edc00/42/b75e6ac8/GeneratedRegexAttribute.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/282a058f877b4e999b3e199fc09080642e000/57/907d173a/ConcurrentDictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2edf43b137944633bdf23d179a66c2714aa00/33/13d0a6f8/SortedSet`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2edf43b137944633bdf23d179a66c2714aa00/7e/7c576b93/SortedDictionary`2.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3695c4e875a849daa9716022e9c74da61600/ee/8c28ea3a/Uuidv5Utils.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/66e9768853d54674806001604e68939916d200/44/59144f6a/Utf8JsonWriter.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/66e9768853d54674806001604e68939916d200/a2/50d630a4/JsonSerializer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/838402d166304061809e45e127735cb910718/19/03331550/LogEntry`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/0a/28c18c27/Array.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/37/cd2707ab/List`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/58/cf05c515/FileStream.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/75/f056a01d/IReadOnlyDictionary`2.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/86/c01ac4f0/BinaryPrimitives.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/8a/7f8c7d66/Int64.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/99/975f4183/Nullable`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/a4/b8d817a3/String.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/bc/f6f6f461/Dictionary`2.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/d3/7b5ef7ff/Number.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/d5/e2d4d512/BinaryReader.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -52,13 +90,15 @@
     &quot;.NET Project.KVDb.executor&quot;: &quot;Debug&quot;,
     &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/soumil/Soumil/Programming/c#/AutoCadReader-main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -100,7 +140,14 @@
       <workItem from="1730813715109" duration="365000" />
       <workItem from="1731250541748" duration="24000" />
       <workItem from="1731516321726" duration="45000" />
-      <workItem from="1731516437252" duration="884000" />
+      <workItem from="1731516437252" duration="1610000" />
+      <workItem from="1731564683693" duration="191000" />
+      <workItem from="1732803448194" duration="33000" />
+      <workItem from="1732803497564" duration="10483000" />
+      <workItem from="1732818737428" duration="7181000" />
+      <workItem from="1732861795640" duration="15286000" />
+      <workItem from="1732967002875" duration="2541000" />
+      <workItem from="1732969564941" duration="1708000" />
     </task>
     <servers />
   </component>

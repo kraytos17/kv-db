@@ -8,7 +8,8 @@ public sealed class MemTable : IDisposable {
     private readonly string _sstableDirectory;
     private long _currSize;
     private const long FlushThreshold = 64 * 1024 * 1024;
-
+    private static readonly BloomFilter Filter = new(10000, 0.1);
+    
     public MemTable(string walPath) {
         _walPath = walPath;
         _sstableDirectory = Path.GetDirectoryName(walPath) ?? ".";
@@ -18,6 +19,7 @@ public sealed class MemTable : IDisposable {
     public void Insert(string key, string value) {
         WriteLogEntry(key, value, "INSERT");
         _entries[key] = value;
+        Filter.Add(value);
         _currSize += key.Length + value.Length;
         
         if (_currSize >= FlushThreshold) {
@@ -26,7 +28,7 @@ public sealed class MemTable : IDisposable {
     }
 
     public string? Get(string key) {
-        return _entries.GetValueOrDefault(key);
+        return !Filter.MightContain(key) ? null : _entries.GetValueOrDefault(key);
     }
 
     public void Delete(string key) {
@@ -42,7 +44,7 @@ public sealed class MemTable : IDisposable {
         var sstablePath = GenerateSsTablePath();
         var sstable = new SsTable(sstablePath);
         
-        await sstable.WriteAsync(_entries, cancellationToken);
+        await sstable.WriteAsync(_entries, Filter, cancellationToken);
 
         _entries.Clear();
         _currSize = 0;

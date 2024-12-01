@@ -5,10 +5,10 @@ namespace KVDb;
 public sealed class SsTable(string filePath) {
     private SstFooter? _footer;
     private readonly List<SstIndexEntry> _index = [];
+    private static BloomFilter _filter = new(10000, 0.01);
 
-    public async Task WriteAsync(IDictionary<string, string> record, CancellationToken ct = default) {
-        ArgumentNullException.ThrowIfNull(record);
-
+    public async Task WriteAsync(IDictionary<string, string> record, BloomFilter filter, CancellationToken _ = default) {
+        _filter = filter;
         var sortedKeys = record.Keys.OrderBy(k => k).ToList();
         var metadata = new SstMetadata(
             MinKey: sortedKeys.First(),
@@ -33,7 +33,6 @@ public sealed class SsTable(string filePath) {
 
         await using var stream = new StreamWriter(filePath, false, Encoding.UTF8);
         await stream.WriteLineAsync($"MinKey={metadata.MinKey},MaxKey={metadata.MaxKey},MaxCount={metadata.MaxCount}");
-
         foreach (var key in sortedKeys) {
             await stream.WriteLineAsync($"{key}:{record[key]}");
         }
@@ -45,13 +44,15 @@ public sealed class SsTable(string filePath) {
         await stream.WriteLineAsync($"IndexStart={footer.IndexStartOffset}");
     }
 
-    public async Task<string?> ReadAsync(ReadOnlyMemory<char> key, CancellationToken cancellationToken = default) {
+    public async Task<string?> ReadAsync(ReadOnlyMemory<char> key, CancellationToken ct = default) {
         if (key.IsEmpty) {
             throw new ArgumentException("Key cannot be empty", nameof(key));
         }
 
-        await EnsureFooterAndIndexAsync(cancellationToken);
+        await EnsureFooterAndIndexAsync(ct);
         var keyStr = key.ToString();
+        
+        if (!_filter.MightContain(keyStr)) return null;
         var indexEntry = _index.FirstOrDefault(entry => entry.Key == keyStr);
         if (indexEntry == default) return null;
 
@@ -59,11 +60,11 @@ public sealed class SsTable(string filePath) {
         stream.Seek(indexEntry.Position, SeekOrigin.Begin);
 
         using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
-        return await reader.ReadLineAsync(cancellationToken);
+        return await reader.ReadLineAsync(ct);
     }
 
-    private async Task<Dictionary<string, string>> ReadAllAsync(CancellationToken cancellationToken = default) {
-        await EnsureFooterAndIndexAsync(cancellationToken);
+    private async Task<Dictionary<string, string>> ReadAllAsync(CancellationToken ct = default) {
+        await EnsureFooterAndIndexAsync(ct);
 
         var records = new Dictionary<string, string>();
         if (_footer == null) return records;
@@ -72,7 +73,7 @@ public sealed class SsTable(string filePath) {
         stream.Seek(_footer.DataStartOffset, SeekOrigin.Begin);
 
         using var reader = new StreamReader(stream, Encoding.UTF8, leaveOpen: true);
-        while (await reader.ReadLineAsync(cancellationToken) is { } line) {
+        while (await reader.ReadLineAsync(ct) is { } line) {
             if (line.StartsWith("IndexStart=")) break;
 
             var parts = line.Split(':');
@@ -94,7 +95,7 @@ public sealed class SsTable(string filePath) {
         }
 
         var compactedTable = new SsTable(outputPath);
-        await compactedTable.WriteAsync(mergedRecords, ct);
+        await compactedTable.WriteAsync(mergedRecords, _filter, ct);
         return compactedTable;
     }
 
@@ -123,12 +124,12 @@ public sealed class SsTable(string filePath) {
         }
 
         var recoveredTable = new SsTable(sstablePath);
-        await recoveredTable.WriteAsync(recoveredRecords, ct);
+        await recoveredTable.WriteAsync(recoveredRecords, _filter, ct);
         return recoveredTable;
     }
 
     private async Task EnsureFooterAndIndexAsync(CancellationToken cancellationToken = default) {
-        if (_footer is not null && _index.Any()) return;
+        if (_footer is not null && _index.Count != 0) return;
 
         await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(stream, Encoding.UTF8);

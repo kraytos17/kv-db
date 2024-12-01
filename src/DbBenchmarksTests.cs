@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace KVDb;
 
-public class DbBenchmarkTests {
+public static class DbBenchmarkTests {
     public static async Task RunBenchmarkTestsAsync(Db db, ILogger logger) {
         await BenchmarkInsertAsync(db, logger);
         await BenchmarkGetAsync(db, logger);

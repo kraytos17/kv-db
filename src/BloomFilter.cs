@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace KVDb;
 
@@ -6,47 +8,107 @@ public sealed class BloomFilter {
     private readonly BitArray _bitArray;
     private readonly int[] _seeds;
     private readonly int _hashFunctionCount;
+    private readonly int _expectedItems;
+    private readonly double _falsePositiveRate;
+    private readonly JsonSerializerOptions _options = new() {
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     public BloomFilter(int expectedItems, double falsePositiveRate) {
+        if (expectedItems <= 0)
+            throw new ArgumentException("Expected items must be a positive number.", nameof(expectedItems));
+
+        if (falsePositiveRate is <= 0 or >= 1)
+            throw new ArgumentException("False positive rate must be between 0 and 1.", nameof(falsePositiveRate));
+
+        _expectedItems = expectedItems;
+        _falsePositiveRate = falsePositiveRate;
+
         int bitArraySize = CalculateBitArraySize(expectedItems, falsePositiveRate);
         _hashFunctionCount = CalculateHashFunctionCount(bitArraySize, expectedItems);
         _bitArray = new BitArray(bitArraySize);
         _seeds = GenerateHashSeeds(_hashFunctionCount);
     }
 
-    public void Add(string key) {
+    private BloomFilter(BitArray bitArray, int[] seeds, int hashFunctionCount, int expectedItems, double falsePositiveRate) {
+        _bitArray = bitArray;
+        _seeds = seeds;
+        _hashFunctionCount = hashFunctionCount;
+        _expectedItems = expectedItems;
+        _falsePositiveRate = falsePositiveRate;
+    }
+
+    public void Add(string? key) {
+        ArgumentNullException.ThrowIfNull(key);
+
         foreach (var hash in HashKey(key)) {
             _bitArray[hash] = true;
         }
     }
 
-    public bool MightContain(string key) => HashKey(key).All(hash => _bitArray[hash]);
+    public bool MightContain(string? key) {
+        ArgumentNullException.ThrowIfNull(key);
 
-    public void SaveToDisk(string filePath) {
-        using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-        using var writer = new BinaryWriter(stream);
-
-        writer.Write(_bitArray.Length);
-        writer.Write(_hashFunctionCount);
-        writer.Write(_seeds.Length);
-        foreach (var seed in _seeds) writer.Write(seed);
-        foreach (bool bit in _bitArray) writer.Write(bit);
+        return HashKey(key).All(hash => _bitArray[hash]);
     }
 
-    public static BloomFilter LoadFromDisk(string filePath) {
-        using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-        using var reader = new BinaryReader(stream);
+    public void SaveToDisk(string filePath) {
+        try {
+            var bloomFilterData = CreateBloomFilterData();
+            var jsonString = JsonSerializer.Serialize(bloomFilterData, _options);
+            File.WriteAllText(filePath, jsonString);
+        }
+        catch (Exception ex) {
+            throw new IOException($"Error saving Bloom Filter to {filePath}: {ex.Message}", ex);
+        }
+    }
 
-        int bitArraySize = reader.ReadInt32();
-        int hashFunctionCount = reader.ReadInt32();
-        int seedCount = reader.ReadInt32();
-        var seeds = new int[seedCount];
-        for (var i = 0; i < seedCount; ++i) seeds[i] = reader.ReadInt32();
+    public BloomFilter LoadFromDisk(string filePath) {
+        try {
+            string jsonString = File.ReadAllText(filePath);
+            return DeserializeBloomFilter(jsonString);
+        }
+        catch (Exception ex) {
+            throw new IOException($"Error loading Bloom Filter from {filePath}: {ex.Message}", ex);
+        }
+    }
 
-        var bitArray = new BitArray(bitArraySize);
-        for (var i = 0; i < bitArraySize; ++i) bitArray[i] = reader.ReadBoolean();
+    public string Serialize() {
+        var bloomFilterData = CreateBloomFilterData();
+        return JsonSerializer.Serialize(bloomFilterData, _options);
+    }
 
-        return new BloomFilter(bitArray, seeds, hashFunctionCount);
+    public BloomFilter Deserialize(string serializedData) => DeserializeBloomFilter(serializedData);
+    
+    private BloomFilterData CreateBloomFilterData() {
+        return new BloomFilterData {
+            ExpectedItems = _expectedItems,
+            FalsePositiveRate = _falsePositiveRate,
+            BitArrayLength = _bitArray.Length,
+            HashFunctionCount = _hashFunctionCount,
+            Seeds = _seeds,
+            BitArray = SerializeBitArray()
+        };
+    }
+
+    private BloomFilter DeserializeBloomFilter(string serializedData) {
+        var bloomFilterData = JsonSerializer.Deserialize<BloomFilterData>(serializedData, _options);
+        
+        if (bloomFilterData == null)
+            throw new InvalidOperationException("Failed to deserialize Bloom Filter data.");
+
+        var bitArray = new BitArray(bloomFilterData.BitArray) {
+            Length = bloomFilterData.BitArrayLength
+        };
+
+        return new BloomFilter(
+            bitArray,
+            bloomFilterData.Seeds,
+            bloomFilterData.HashFunctionCount,
+            bloomFilterData.ExpectedItems,
+            bloomFilterData.FalsePositiveRate
+        );
     }
 
     private IEnumerable<int> HashKey(string key) => 
@@ -55,17 +117,30 @@ public sealed class BloomFilter {
     private static int[] GenerateHashSeeds(int count) {
         var seeds = new int[count];
         var random = new Random();
-        for (var i = 0; i < count; ++i) seeds[i] = random.Next();
+        for (var i = 0; i < count; ++i) {
+            seeds[i] = random.Next();
+        }
         return seeds;
     }
 
     private static int CalculateBitArraySize(int n, double p) => (int)Math.Ceiling(-n * Math.Log(p) / Math.Pow(Math.Log(2), 2));
-
     private static int CalculateHashFunctionCount(int m, int n) => (int)Math.Ceiling((double)m / n * Math.Log(2));
-
-    private BloomFilter(BitArray bitArray, int[] seeds, int hashFunctionCount) {
-        _bitArray = bitArray;
-        _seeds = seeds;
-        _hashFunctionCount = hashFunctionCount;
+    
+    private bool[] SerializeBitArray() {
+        var boolArray = new bool[_bitArray.Length];
+        for (var i = 0; i < _bitArray.Length; i++) {
+            boolArray[i] = _bitArray[i];
+        }
+        return boolArray;
+    }
+    
+    public void Clear() => _bitArray.SetAll(false);
+    private class BloomFilterData {
+        public int ExpectedItems { get; init; }
+        public double FalsePositiveRate { get; init; }
+        public int BitArrayLength { get; init; }
+        public int HashFunctionCount { get; init; }
+        public required int[] Seeds { get; init; }
+        public required bool[] BitArray { get; init; }
     }
 }

@@ -8,23 +8,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11c22dde-5f17-425e-bb55-6a2e66feb1e6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/BloomFilter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/LogEntry.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/MurmurHash3.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/SSTFooter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/SSTMetadata.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/SSTable.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/SstIdxEntry.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.KVDb/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.KVDb/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KVDb.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/KVDb.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KVDb.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/KVDb.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Db.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Db.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/KeyDirEntry.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/BloomFilter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/BloomFilter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ConcurrencyTest.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/DbBenchmarksTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/DbBenchmarksTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Log.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/LogEntry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/LogEntry.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Memtable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Memtable.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MurmurHash3.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/MurmurHash3.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Segment.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SegmentEntry.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SSTFooter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/SSTFooter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SSTMetadata.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/SSTMetadata.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SSTable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/SSTable.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SstIdxEntry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/SstIdxEntry.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,13 +48,16 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1658c9b866fc49cc9cc47fffce99f063edc00/42/b75e6ac8/GeneratedRegexAttribute.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/282a058f877b4e999b3e199fc09080642e000/4b/3d5a6c19/ConcurrentBag`1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/282a058f877b4e999b3e199fc09080642e000/57/907d173a/ConcurrentDictionary`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2edf43b137944633bdf23d179a66c2714aa00/33/13d0a6f8/SortedSet`1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2edf43b137944633bdf23d179a66c2714aa00/7e/7c576b93/SortedDictionary`2.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3695c4e875a849daa9716022e9c74da61600/ee/8c28ea3a/Uuidv5Utils.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/3b0d8419ba554e1287327f06a64825b0cd18/61/2ddb5fd1/LoggerFactory.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/66e9768853d54674806001604e68939916d200/44/59144f6a/Utf8JsonWriter.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/66e9768853d54674806001604e68939916d200/a2/50d630a4/JsonSerializer.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/838402d166304061809e45e127735cb910718/19/03331550/LogEntry`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/838402d166304061809e45e127735cb910718/f5/017a723a/LoggerExtensions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/0a/28c18c27/Array.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/37/cd2707ab/List`1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/58/cf05c515/FileStream.cs" root0="FORCE_HIGHLIGHTING" />
@@ -147,7 +147,10 @@
       <workItem from="1732818737428" duration="7181000" />
       <workItem from="1732861795640" duration="15286000" />
       <workItem from="1732967002875" duration="2541000" />
-      <workItem from="1732969564941" duration="1708000" />
+      <workItem from="1732969564941" duration="2122000" />
+      <workItem from="1732977962671" duration="4369000" />
+      <workItem from="1732990635098" duration="317000" />
+      <workItem from="1733047079224" duration="347000" />
     </task>
     <servers />
   </component>
@@ -156,6 +159,17 @@
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>

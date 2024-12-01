@@ -10,18 +10,8 @@
     <list default="true" id="11c22dde-5f17-425e-bb55-6a2e66feb1e6" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.KVDb/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.KVDb/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KVDb.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/KVDb.sln.DotSettings.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BloomFilter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/BloomFilter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/ConcurrencyTest.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Db.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Db.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/DbBenchmarksTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/DbBenchmarksTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Log.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/LogEntry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/LogEntry.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Memtable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Memtable.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MurmurHash3.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/MurmurHash3.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SSTFooter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/SSTFooter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SSTMetadata.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/SSTMetadata.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SSTable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/SSTable.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/SstIdxEntry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/SstIdxEntry.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,11 +54,13 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/75/f056a01d/IReadOnlyDictionary`2.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/86/c01ac4f0/BinaryPrimitives.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/8a/7f8c7d66/Int64.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/95/ffd643b7/Stopwatch.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/99/975f4183/Nullable`1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/a4/b8d817a3/String.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/bc/f6f6f461/Dictionary`2.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/d3/7b5ef7ff/Number.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/d5/e2d4d512/BinaryReader.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b340b8fec8144b3aa7bc3a6d6abaa900d1bc00/f6/e2f6dcd4/SpanHelpers.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
@@ -150,7 +142,7 @@
       <workItem from="1732969564941" duration="2122000" />
       <workItem from="1732977962671" duration="4369000" />
       <workItem from="1732990635098" duration="317000" />
-      <workItem from="1733047079224" duration="347000" />
+      <workItem from="1733047079224" duration="1395000" />
     </task>
     <servers />
   </component>

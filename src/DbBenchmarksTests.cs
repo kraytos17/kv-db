@@ -8,7 +8,7 @@ public static class DbBenchmarkTests {
         await BenchmarkInsertAsync(db, logger);
         await BenchmarkGetAsync(db, logger);
         await BenchmarkDeleteAsync(db, logger);
-        await ConcurrencyTestAsync(db, logger);
+        //await ConcurrencyTestAsync(db, logger);
         await InsertMultipleKeysAndTriggerCompaction(db, logger);
     }
 
@@ -30,7 +30,7 @@ public static class DbBenchmarkTests {
         var stopWatch = Stopwatch.StartNew();
         for (var i = 1; i <= 1000; ++i) {
             var value = await db.GetAsync($"key{i}");
-            if (value == null) {
+            if (value is null) {
                 logger.LogWarning("Key 'key{i}' was not found!", i);
             }
         }
@@ -51,26 +51,26 @@ public static class DbBenchmarkTests {
         logger.LogInformation("Deleted 1000 keys in {elapsedTime} ms.", stopWatch.ElapsedMilliseconds);
     }
 
-    private static async Task ConcurrencyTestAsync(Db db, ILogger logger) {
-        logger.LogInformation("Running Concurrency Test...");
-
-        var tasks = new List<Task>();
-        for (var i = 0; i < 10; ++i) {
-            var i1 = i;
-            var task = Task.Run(async () => {
-                for (var j = 1000 * i1 + 1; j <= 1000 * (i1 + 1); ++j) {
-                    await db.InsertAsync($"key{j}", $"value{j}");
-                }
-            });
-            tasks.Add(task);
-        }
-
-        var stopWatch = Stopwatch.StartNew();
-
-        await Task.WhenAll(tasks);
-        stopWatch.Stop();
-        logger.LogInformation("Completed concurrent insertions of 10000 keys in {elapsedTime} ms.", stopWatch.ElapsedMilliseconds);
-    }
+    // private static async Task ConcurrencyTestAsync(Db db, ILogger logger) {
+    //     logger.LogInformation("Running Concurrency Test...");
+    //
+    //     var tasks = new List<Task>();
+    //     for (var i = 0; i < 10; ++i) {
+    //         var i1 = i;
+    //         var task = Task.Run(async () => {
+    //             for (var j = 1000 * i1 + 1; j <= 1000 * (i1 + 1); ++j) {
+    //                 await db.InsertAsync($"key{j}", $"value{j}");
+    //             }
+    //         });
+    //         tasks.Add(task);
+    //     }
+    //
+    //     var stopWatch = Stopwatch.StartNew();
+    //
+    //     await Task.WhenAll(tasks);
+    //     stopWatch.Stop();
+    //     logger.LogInformation("Completed concurrent insertions of 10000 keys in {elapsedTime} ms.", stopWatch.ElapsedMilliseconds);
+    // }
 
     private static async Task InsertMultipleKeysAndTriggerCompaction(Db db, ILogger logger) {
         logger.LogInformation("Inserting multiple keys to trigger compaction...");

@@ -7,7 +7,7 @@ public sealed class MemTable : IDisposable {
     private readonly string _walPath;
     private readonly string _sstableDirectory;
     private long _currSize;
-    private const long FlushThreshold = 64 * 1024 * 1024;
+    private const long FlushThreshold = 1 * 1024 * 1024;
     private static readonly BloomFilter Filter = new(10000, 0.1);
     
     public MemTable(string walPath) {

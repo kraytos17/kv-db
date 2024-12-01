@@ -7,7 +7,7 @@ public sealed class Db : IDisposable {
     private readonly MemTable _memTable;
     private readonly ConcurrentBag<SsTable> _sstables = [];
     private readonly SemaphoreSlim _writeLock = new(1, 1);
-    private readonly CancellationTokenSource _cancellationTokenSource = new();
+    private readonly CancellationTokenSource _cts = new();
 
     public Db(string basePath) {
         _basePath = basePath;
@@ -41,13 +41,13 @@ public sealed class Db : IDisposable {
 
     public async Task<string?> GetAsync(string key, CancellationToken cancellationToken = default) {
         var memTableValue = _memTable.Get(key);
-        if (memTableValue != null) {
+        if (memTableValue is not null) {
             return memTableValue == "DELETED" ? null : memTableValue;
         }
 
         foreach (var ssTable in _sstables.Reverse()) {
             var value = await ssTable.ReadAsync(key.AsMemory(), cancellationToken);
-            if (value != null) {
+            if (value is not null) {
                 return value;
             }
         }
@@ -58,7 +58,7 @@ public sealed class Db : IDisposable {
     public async Task DeleteAsync(string key, CancellationToken cancellationToken = default) {
         await _writeLock.WaitAsync(cancellationToken);
         try {
-            _memTable.Insert(key, "DELETED");
+            _memTable.Delete(key);
         }
         finally {
             _writeLock.Release();
@@ -86,6 +86,6 @@ public sealed class Db : IDisposable {
     public void Dispose() {
         _memTable.Dispose();
         _writeLock.Dispose();
-        _cancellationTokenSource.Dispose();
+        _cts.Dispose();
     }
 }
